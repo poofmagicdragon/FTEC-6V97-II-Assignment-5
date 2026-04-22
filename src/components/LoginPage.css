@@ -136,8 +136,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8fafc;
+    background: linear-gradient(315deg, #6e7009,#463900);
     padding: 3rem 2rem;
+
 }
 
 .login-card {
@@ -173,7 +174,7 @@ body {
 .login-card-btn {
     width: 100%;
     padding: 0.8rem 1.5rem;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
+    background-color: #22c55e;
     color: #ffffff;
     border: none;
     border-radius: 10px;
@@ -188,6 +189,49 @@ body {
 
 .login-card-btn:hover {
     cursor: pointer;
+}
+
+
+.Form {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 0.5rem;
+    padding-bottom: 1rem;
+
+}
+
+.Form .form-label {
+    padding: 0.75rem ;
+}
+
+.Form .form-control {
+    color: #64748b;
+}
+
+.Form #FormBox-Username {
+    border: 1px solid #000000;
+    border-radius: 6px
+}
+
+
+.Form #FormBox-Username:focus {
+  border: 2px solid #16a34a;
+  outline: none;
+  box-shadow: none;
+}
+
+
+.Form #FormBox-Password {
+    border: 1px solid #000000;
+    border-radius: 6px
+}
+
+
+.Form #FormBox-Password:focus {
+  border: 2px solid #16a34a;
+  outline: none;
+  box-shadow: none;
 }
 
 
