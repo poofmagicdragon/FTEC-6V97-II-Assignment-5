@@ -45,9 +45,9 @@ const TradePanel = ({portfolio, holdings, onBuy, onSell, error, success}) => {
                         <Button variant="success" onClick = {() => onBuy(portfolio.id, ticker, quantity)}>
                             Buy
                         </Button>
-                        {/* <Button variant="danger" onClick = {() => onSell(portfolio.id, ticker, quantity)}>
+                        <Button variant="danger" onClick = {() => onSell(portfolio.id, ticker, quantity)}>
                             Sell
-                        </Button> */}
+                        </Button>
                     </div>
                 </Form>
             </Card.Body>

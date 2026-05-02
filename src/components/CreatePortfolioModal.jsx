@@ -13,6 +13,11 @@ const CreatPortfolioModal = ({showModal, onModalClose, onCreate}) => {
         onModalClose()
     }
 
+    const handleCreate = () => {
+        onCreate(name, description)
+        handleModalClose()
+    }
+
     return(
     <>
     <Modal show={showModal}>
@@ -47,7 +52,7 @@ const CreatPortfolioModal = ({showModal, onModalClose, onCreate}) => {
         </Modal.Body>
         <Modal.Footer>
             <Button variant = "secondary" onClick = {() => handleModalClose()}>Cancel</Button>
-            <Button variant = "success" onClick = {() => onCreate(name, description)}>Create</Button>
+            <Button variant = "success" onClick = {handleCreate}>Create</Button>
         </Modal.Footer>
     </Modal>
     </>

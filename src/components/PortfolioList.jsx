@@ -1,6 +1,6 @@
 import { Row, Col, Card, Button } from 'react-bootstrap'
 
-function PortfolioList ({ portfolios, onCreatePortfolio, onSelectPortfolio }) {
+function PortfolioList ({ portfolios, onCreatePortfolio, onSelectPortfolio, handleDeletePortfolioButtonClick }) {
     return (
         <>
         <div style = {{ margin: '10px'}}>
@@ -20,15 +20,19 @@ function PortfolioList ({ portfolios, onCreatePortfolio, onSelectPortfolio }) {
                     className = "h-100"
                     // border = {portfolio.id === selectedPortfolioID ? 'success' : undefined}
                     style = {{ cursor: 'pointer' }}
-                    onClick = {() => onSelectPortfolio(portfolio.id)}
                     >
                         <Card.Body>
                             <Card.Title>{portfolio.name}</Card.Title>
                             <Card.Text className = "text-muted">{portfolio.description || 'No description.'}</Card.Text>
                         </Card.Body>
                         <Card.Footer className = "text-end">
-                            {/* <Button variant = "danger" size = "sm" style = {{ marginRight: '5px'}}>Delete</Button> */}
-                            <Button variant = "outline-success" size = "sm">
+                            <Button variant = "danger" 
+                            size = "sm" 
+                            onClick = {handleDeletePortfolioButtonClick}
+                            style = {{marginRight: '5px'}}>
+                                Delete
+                            </Button>
+                            <Button variant = "outline-success" size = "sm"                     onClick = {() => onSelectPortfolio(portfolio.id)}>
                                 View Holdings
                             </Button>
                         </Card.Footer>
