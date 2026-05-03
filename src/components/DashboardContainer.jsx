@@ -32,7 +32,9 @@ const DashboardContainer = () => {
     const [tradeError, setTradeError] = useState('')
     const [tradeSuccess, setTradeSuccess] = useState('')
 
-    const handleDeletePortfolioButtonClick = () => {
+    const handleDeletePortfolioButtonClick = (portfolio_id) => {
+        const portfolio = portfolios.find(p => p.id === portfolio_id)
+        setSelectedPortfolio(portfolio)
         setShowDeletePortfolioModal(true)
     }
 
@@ -40,6 +42,7 @@ const DashboardContainer = () => {
         setPortfolio(portfolios.filter(portfolio => portfolio.id !== portfolio_id))
         setHoldings(holdings.filter(holding => holding.portfolioId !== portfolio_id))
         setActiveTab('portfolios')
+        setShowDeletePortfolioModal(false)
     }
 
 
@@ -129,7 +132,8 @@ const DashboardContainer = () => {
     <Container fluid className = "mt-4">
     <Tabs activeKey = {activeTab} defaultActiveKey = "portfolios" onSelect = {(k) => setActiveTab(k)} className = "navigationTab">
         <Tab eventKey = 'portfolios' title = 'Portfolios'>
-            <PortfolioList portfolios = {portfolios} 
+            <PortfolioList 
+            portfolios = {portfolios} 
             onCreatePortfolio={() => setShowNewPortfolioModal(true)}
             onSelectPortfolio={handleSelectPortfolio}
             handleDeletePortfolioButtonClick = {handleDeletePortfolioButtonClick}
@@ -141,7 +145,8 @@ const DashboardContainer = () => {
             />    
             <DeletePortfolioModal
             show = {showDeletePortfolioModal}
-            onDelete = {handleDeletePortfolioButtonClick}
+            portfolio_id = {selectedPortfolio?.id}
+            onDelete = {removePortfolio}
             onClose = {() => setShowDeletePortfolioModal(false)}
             />
         </Tab>

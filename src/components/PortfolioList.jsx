@@ -28,7 +28,7 @@ function PortfolioList ({ portfolios, onCreatePortfolio, onSelectPortfolio, hand
                         <Card.Footer className = "text-end">
                             <Button variant = "danger" 
                             size = "sm" 
-                            onClick = {handleDeletePortfolioButtonClick}
+                            onClick = {() => handleDeletePortfolioButtonClick(portfolio.id)}
                             style = {{marginRight: '5px'}}>
                                 Delete
                             </Button>

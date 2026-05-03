@@ -7,7 +7,7 @@ const DeletePortfolioModal = ({ show, portfolio_id, onDelete, onClose }) => {
         <div 
         style = {{ display: 'block', position: 'initial'}}>
             <Modal show = {show}>
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title>Are you sure you want to delete this portfolio?</Modal.Title>
                 </Modal.Header>
 
@@ -17,7 +17,7 @@ const DeletePortfolioModal = ({ show, portfolio_id, onDelete, onClose }) => {
                 
 
                 <Modal.Footer>
-                    <Button variant = "danger" onClick = {onDelete}>Yes</Button>
+                    <Button variant = "danger" onClick = {() => onDelete(portfolio_id)}>Yes</Button>
                     <Button variant ="secondary" onClick = {onClose}>No</Button>
                 </Modal.Footer>
             </Modal>
