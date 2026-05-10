@@ -5,6 +5,38 @@ const CreatPortfolioModal = ({showModal, onModalClose, onCreate}) => {
     const [error, setError] = useState('')
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
+
+    async function handleSubmit(e) {
+        e.preventDefault()
+        
+        const trimmedName = name.trim()
+        if (!trimmedName) {
+            setError('Portfolio name is required.')
+            return
+        }
+
+        const duplicate = PortfolioList.some(
+            p => p.name.toLowerCase() === trimmedName.toLowerCase()
+        )
+        if (duplicate) {
+            setError('A portfolio with that name already exists.')
+            return
+        }
+
+    setSubmitting(true)
+    try{
+        await onCreate(trimmedName, description)
+        setName('')
+        setDescription('')
+        setError('')
+    }
+    catch (err) {
+        setError(err.message)
+    }
+    finally {
+        setSubmitting(false)
+    }
+    }
     
     const handleModalClose = () => {
         setError('')

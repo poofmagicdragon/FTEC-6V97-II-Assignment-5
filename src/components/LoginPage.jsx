@@ -1,27 +1,9 @@
 import './LoginPage.css'
-import { useState } from 'react'
 import { Form, Alert } from 'react-bootstrap';
+import { redirectToLogin } from '../cognito';
 
 const LoginPage = ({onHandleLogin, onAuthError}) => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const handleUsernameChange = (e) => {
-        e.preventDefault()
-        console.log('The Username is ' + e.target.value)
-        setUsername(e.target.value)
-    }
 
-    const handlePasswordChange = (e) => {
-        e.preventDefault()
-        console.log('The password is ' + e.target.value)
-        setPassword(e.target.value)
-    }
-    
-    const resetValuesAndLogin = () => {
-        onHandleLogin(username, password)
-        setUsername('')
-        setPassword('')
-    }
 
 
     return(
@@ -54,18 +36,8 @@ const LoginPage = ({onHandleLogin, onAuthError}) => {
                         <Alert variant = "danger" className = "lp-alert">{onAuthError}</Alert>
                     )}
 
-                    <Form>
-                        <Form.Group className = "Form" controlId = "FormBox-Username"> {/* This is the actual box */}
-                            <Form.Label>Username</Form.Label>
-                            <Form.Control value = {username} type="text" onChange = {(e) => handleUsernameChange(e)}/> {/* This is the text inside box */}
-                        </Form.Group>
-                        <Form.Group className = "Form" controlId = "FormBox-Password"> {/* This is the actual box */}
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control value = {password} type="password" onChange = {(e) => handlePasswordChange(e)}/> {/* This is the text inside box*/}
-                        </Form.Group>
-                    </Form>
                     
-                    <button className = "login-card-btn" onClick= {() => resetValuesAndLogin(username, password)}>
+                    <button className = "login-card-btn" onClick= {redirectToLogin}>
                     Sign in with Kiwi
                     </button>
 
