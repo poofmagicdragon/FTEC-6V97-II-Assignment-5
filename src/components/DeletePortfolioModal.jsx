@@ -2,6 +2,23 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 const DeletePortfolioModal = ({ show, portfolio_id, onDelete, onClose }) => {
+    // const [error, setError] = useState('')
+    // const [deleting, setDeleting] = useState(false)
+
+    // async function handleConfirm() {
+    //     setDeleting(true)
+    //     try {
+    //         await onDelete()
+    //         setError('')
+    //     }
+    //     catch (err) {
+    //         setError
+    //     }
+    // }
+
+
+
+
     return (
         <>
         <div 

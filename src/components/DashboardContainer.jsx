@@ -8,6 +8,29 @@ import TradePanel from './TradePanel'
 import DeletePortfolioModal from './DeletePortfolioModal'
 
 const DashboardContainer = () => {
+    const [isLoading, setIsLoading] = useState(true)
+    const [showErrorAlert, setShowErrorAlert] = useState(false)
+    const [errorMessage, setErrorMessage] = useState('')
+    const [portfolios, setPortfolios] = useState([])
+    const [refreshPortfolioList, setRefreshPortfolioList] = useState(0)
+    const [activeTab, setActiveTab] = useState('portfolios')
+    const [portfolioToDelete, setPortfolioToDelete] = useState(null)
+
+
+    const [showCreatePortfolioModal, setShowNewPortfolioModal] = useState(false)
+    const [showDeletePortfolioModal, setShowDeletePortfolioModal] = useState(false)
+    
+    const [selectedPortfolio, setSelectedPortfolio] = useState(-1)
+    const [selectedPortfolioId, setSelectedPortfolioId] = useState(null)
+
+    const [tradeError, setTradeError] = useState('')
+    const [tradeSuccess, setTradeSuccess] = useState('')
+    const [holdings, setHoldings] = useState([])
+
+
+
+
+
     // const [portfolios, setPortfolio] = useState([
     // {id: 1, name: 'Growth Fund ', description: 'A fund for growth picks'},
     // {id: 2, name: 'Tech Fund ', description: 'A fund for tech picks'},
@@ -46,65 +69,59 @@ const DashboardContainer = () => {
 
 
     //     }
-        
-        const token = getAccessToken()
-        if(!token) {
-            setIsLoading(false)
-            return
-        }
-        setIsLoading(true)
-        fetch('/api/portfolios/', {
-            method: 'GET',
-            headers: {
+
+
+    const token = getAccessToken()
+    if (!token) {
+        setIsLoading(false)
+        return
+    }
+
+    setIsLoading(true)
+
+    fetch('/api/portfolios/', {
+        method: 'GET',
+        headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
-            }
-        })
-            .then(res => {
-            if (!res.ok) {
-                return res.json().then(err => {
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
                 setErrorMessage(err.error_message)
                 setShowErrorAlert(true)
-                })
-            }
-            return res.json()
             })
-            .then(data => {
-            if (data) setPortfolios(data)
-            })
-            .catch(err => {
-            setErrorMessage(err.message)
-            setShowErrorAlert(true)
-            })
-            .finally(() => setIsLoading(false))
-        }, [])
+        }
+        return res.json()
+    })
+    .then(data => {
+        if (data) setPortfolios(data)
+    })
+    .catch(err => {
+        setErrorMessage(err.message)
+        setShowErrorAlert(true)
+    })
+    .finally(() => setIsLoading(false))
+
+}, [refreshPortfolioList])
+
 
     // for fetching the portfolios:
     
 
-    const [holdings, setHoldings] = useState([
-        {id: 1, portfolioId: 1, ticker: 'AAPL', quantity: 10},
-        {id: 2, portfolioId: 1, ticker: 'MSFT', quantity: 5},
-    ])
+    // const [holdings, setHoldings] = useState([
+    //     {id: 1, portfolioId: 1, ticker: 'AAPL', quantity: 10},
+    //     {id: 2, portfolioId: 1, ticker: 'MSFT', quantity: 5},
+    // ])
 
-    const [isLoading, setIsLoading] = useState(true)
-    const [showErrorAlert, setShowErrorAlert] = useState(false)
-    const [errorMessage, setErrorMessage] = useState('')
-    const [portfolios, setPortfolios] = useState([])
+
     
-    const [transactions, setTransactions] = useState([
-        { id: 1, portfolioId: 1, ticker: 'AAPL', type: 'buy', quantity: 10, date: '2026-03-01'},
-        { id: 2, portfolioId: 1, ticker: 'MSFT', type: 'buy', quantity: 5, date: '2026-03-10'}
-    ])
+    // const [transactions, setTransactions] = useState([
+    //     { id: 1, portfolioId: 1, ticker: 'AAPL', type: 'buy', quantity: 10, date: '2026-03-01'},
+    //     { id: 2, portfolioId: 1, ticker: 'MSFT', type: 'buy', quantity: 5, date: '2026-03-10'}
+    // ])
 
-
-
-    const [activeTab, setActiveTab] = useState('portfolios')
-    const [showCreatePortfolioModal, setShowNewPortfolioModal] = useState(false)
-    const [showDeletePortfolioModal, setShowDeletePortfolioModal] = useState(false)
-    const [selectedPortfolio, setSelectedPortfolio] = useState(-1)
-    const [tradeError, setTradeError] = useState('')
-    const [tradeSuccess, setTradeSuccess] = useState('')
 
 
 
@@ -114,22 +131,57 @@ const DashboardContainer = () => {
         setShowDeletePortfolioModal(true)
     }
 
-    const removePortfolio = (portfolio_id) => {
-        setPortfolio(portfolios.filter(portfolio => portfolio.id !== portfolio_id))
-        setHoldings(holdings.filter(holding => holding.portfolioId !== portfolio_id))
-        setActiveTab('portfolios')
+    // const removePortfolio = (portfolio_id) => {
+    //     setPortfolios(portfolios.filter(portfolio => portfolio.id !== portfolio_id))
+    //     setHoldings(holdings.filter(holding => holding.portfolioId !== portfolio_id))
+    //     setActiveTab('portfolios')
+    //     setShowDeletePortfolioModal(false)
+    // }
+
+    async function handleDeletePortfolio(id) {
+        if (!id) return; // prevents silent failure
+
+        const token = getAccessToken()
+        const res = await fetch(`/api/portfolios/${id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        if (!res.ok) {
+            const error = await res.json()
+            throw new Error(error.error_msg || `Request failed: ${res.status}`)
+        }
+
         setShowDeletePortfolioModal(false)
+        setPortfolioToDelete(null)
+        setRefreshPortfolioList(i => i + 1)
     }
 
 
 
-    const handleCreatePortfolio = (name, description) => {
-        setPortfolio([...portfolios, {id: 4, name: name, description: description}])
+
+
+    async function handleCreatePortfolio(name, description) {
+        const token = getAccessToken()
+        const res = await fetch('/api/portfolios/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({name, description })
+        })
+        if (!res.ok) {
+            const error = await res.json()
+            throw new Error(error.error_message)
+        }
+        // if no error then we want to reload the list of portfolios so that the new portfolio shows
+        setRefreshPortfolioList(i => i+1)
         setShowNewPortfolioModal(false)
     }
-    // const [holdings, setHoldings] = useState([
-    //     {id:1, portfolioId: 1, ticker: 'AAPL'}
-    // ])
+
 
     const handleSelectPortfolio = (portfolio_id) => {
         const portfolio = portfolios.filter(portfolio => portfolio.id === portfolio_id)
@@ -205,6 +257,11 @@ const DashboardContainer = () => {
         }
     }
     
+    // const selectedPortfolio = portfolios.find(p => p.id === selectedPortfolioId) || null
+    const selectedHoldings = holdings.filter(
+        h => h.PortfolioId === selectedPortfolioId
+    )
+
 
     return (
     <>
@@ -237,30 +294,35 @@ const DashboardContainer = () => {
                         portfolios = {portfolios} 
                         onCreatePortfolio={() => setShowNewPortfolioModal(true)}
                         onSelectPortfolio={handleSelectPortfolio}
-                        handleDeletePortfolioButtonClick = {handleDeletePortfolioButtonClick}
+                        onDelete = {(id) => {setPortfolioToDelete(id); setShowDeletePortfolioModal(true);}}
                         />
                         <CreatePortfolioModal 
                         showModal = {showCreatePortfolioModal} 
                         onModalClose = {() => setShowNewPortfolioModal(false)}
                         onCreate = {handleCreatePortfolio}
+                        portfolios={portfolios}
                         />    
                         <DeletePortfolioModal
-                        show = {showDeletePortfolioModal}
-                        portfolio_id = {selectedPortfolio?.id}
-                        onDelete = {removePortfolio}
-                        onClose = {() => setShowDeletePortfolioModal(false)}
+                        show={showDeletePortfolioModal}
+                        portfolio_id={portfolioToDelete}
+                        onDelete={handleDeletePortfolio}
+                        onClose={() => {
+                            setShowDeletePortfolioModal(false)
+                            setPortfolioToDelete(null)
+                        }}
                         />
+
                     </Tab>
                     <Tab eventKey = 'holdings' title = 'Holdings'>
                         <Holdings 
                             portfolio = {selectedPortfolio}
-                            holdings = {holdings.filter(holding => holding.portfolioId === selectedPortfolio.id)}
+                            holdings = {holdings.filter(holding => holding.portfolioId === selectedPortfolio?.id)}
                         />
                     </Tab>
                     <Tab eventKey = 'trade' title = 'Trade'>
                         <TradePanel
                             portfolio = {selectedPortfolio}
-                            holdings = {holdings.filter(holding => holding.portfolioId === selectedPortfolio.id)}
+                            holdings = {holdings.filter(holding => holding.portfolioId === selectedPortfolio?.id)}
                             onBuy = {buy}
                             error = {tradeError}
                             success = {tradeSuccess}
