@@ -9,7 +9,8 @@ import { exchangeCodeForToken, getAccessToken } from './cognito';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [authError, setAuthError] = useState('')
+  const [authError, setAuthError] = useState(null)
+  const [loadingAuth, setLoadingAuth] = useState(false)
   // Objective: run a function everytime this component renders
   // in order to do that we need to use another react hook called useEffect
   // useState -> create variables that react looks out for when their values change the component re-renders
@@ -21,6 +22,9 @@ function App() {
 
 
   useEffect(() => {
+      setLoadingAuth(true)
+
+
       // look at the URL and check whether there is a param called code
       const params = new URLSearchParams(window.location.search)
       const code = params.get('code') // if the params have code parameter then it will get the value otherwise undefined
@@ -30,6 +34,7 @@ function App() {
         exchangeCodeForToken(code)
           .then(() => {
             setIsLoggedIn(true)
+            setAuthError(null)
             window.history.replaceState({}, document.title, "/")
             //navigate("/portfolios")
           })
@@ -37,6 +42,7 @@ function App() {
             setIsLoggedIn(false)
             setAuthError("Authentication Failed")
           })
+          .finally(() => setLoadingAuth(false))
       } 
       else {
         if (getAccessToken()) {
@@ -46,6 +52,7 @@ function App() {
           setIsLoggedIn(false)
           setAuthError(null) 
         }
+        setLoadingAuth(false)
       }
     }, []) // call this callback function after the FIRST render
 
@@ -53,23 +60,10 @@ function App() {
   // if the user is not logged in we will render the loginpage
   // if the user is logged in we will render the Navbar and Dashboard
 
-  const handleLogin = (username, password) => {
-    setAuthError('')
-    console.log('the login callback is working')
-    if (username === 'admin' && password === 'admin'){
-      setIsLoggedIn(true)
-    }
-    else{
-      setIsLoggedIn(false)
-      // print alert to user
-      setAuthError('Login failed. Wrong credentials!')
-    } 
-  }
-
 
   
-  if (!isLoggedIn) {
-    return <LoginPage onHandleLogin = {handleLogin} onAuthError = {authError}/>
+  if (!isLoggedIn && !loadingAuth) {
+    return <LoginPage onAuthError = {authError}/>
   }
 
   return (

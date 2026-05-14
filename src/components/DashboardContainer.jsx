@@ -6,7 +6,7 @@ import CreatePortfolioModal from './CreatePortfolioModal'
 import Holdings from './Holdings'
 import TradePanel from './TradePanel'
 import DeletePortfolioModal from './DeletePortfolioModal'
-// import Transactions from './Transactions'
+import Transactions from './Transactions'
 
 const DashboardContainer = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -26,9 +26,15 @@ const DashboardContainer = () => {
 
     const [tradeError, setTradeError] = useState('')
     const [tradeSuccess, setTradeSuccess] = useState('')
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false)
     const [holdings, setHoldings] = useState([])
 
     const [transactions, setTransactions] = useState([]);
+
+    const [portfolioErrorAlert, setPortfolioErrorAlert] = useState('')
+    const [showPortfolioErrorAlert, setShowPortfolioErrorAlert] = useState(false)
+    const [portfolioSuccessAlert, setPortfolioSuccessAlert] = useState('')
+    const [showPortfolioSuccessAlert, setShowPortfolioSuccessAlert] = useState(false)
 
 
 
@@ -46,7 +52,7 @@ const DashboardContainer = () => {
     // if the 2nd arg is an empty array [], this function will be called exactly once on the component's first render
 
     // side note: everytime the data in the component state change the component will re-render
-    useEffect(() => {
+
         // this is where we will fetch the portfolios from the backend
         // before we start the fetch, we need to add some visual indicator to the user that some work is happening (e.g., loading icon)
         //setIsLoading(true)
@@ -72,7 +78,7 @@ const DashboardContainer = () => {
 
     //     }
 
-
+    useEffect(() => {
     const token = getAccessToken()
     if (!token) {
         setIsLoading(false)
@@ -105,6 +111,9 @@ const DashboardContainer = () => {
         setShowErrorAlert(true)
     })
     .finally(() => setIsLoading(false))
+
+
+
 
 }, [refreshPortfolioList])
 
@@ -139,8 +148,50 @@ const DashboardContainer = () => {
         setErrorMessage(err.message);
         setShowErrorAlert(true);
     });
+
+    // this next part is for updating the transactions
+
+    if (!selectedPortfolio) return;
+    handlePortfolioSecurity(selectedPortfolio.id);
+
 }, [selectedPortfolio, refreshPortfolioList]);   
 
+
+    // for fetching transactions
+async function handlePortfolioSecurity(portfolio_id) {
+    const token = getAccessToken();
+    if (!token) return;
+
+    setIsLoading(true);
+
+    fetch(`/api/portfolios/${portfolio_id}/transactions`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                setErrorMessage(err.error_message);
+                setShowErrorAlert(true);
+            });
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data) setTransactions(data);   
+    })
+    .finally(() => setIsLoading(false));
+}
+
+
+
+
+// }, [refreshTransactionList])
+
+    
 
     // for fetching the portfolios:
     
@@ -160,12 +211,6 @@ const DashboardContainer = () => {
 
 
 
-    const handleDeletePortfolioButtonClick = (portfolio_id) => {
-        const portfolio = portfolios.find(p => p.id === portfolio_id)
-        setSelectedPortfolio(portfolio)
-        setShowDeletePortfolioModal(true)
-    }
-
     // const removePortfolio = (portfolio_id) => {
     //     setPortfolios(portfolios.filter(portfolio => portfolio.id !== portfolio_id))
     //     setHoldings(holdings.filter(holding => holding.portfolioId !== portfolio_id))
@@ -184,11 +229,15 @@ const DashboardContainer = () => {
             }
         })
 
-        if (!res.ok) {
-            const error = await res.json()
-            throw new Error(error.error_msg || `Request failed: ${res.status}`)
-        }
 
+        if (!res.ok) {
+        const data = await res.json();
+        setShowPortfolioErrorAlert(true)
+        setPortfolioErrorAlert(`Could not delete portfolio due to: ${data.error_message}`)
+        return;
+        }
+        setShowPortfolioSuccessAlert(true)
+        setPortfolioSuccessAlert("Succesfully Deleted Portfolio")
         setShowDeletePortfolioModal(false)
         setPortfolioToDelete(null)
         setRefreshPortfolioList(i => i + 1)
@@ -233,6 +282,8 @@ const DashboardContainer = () => {
             setShowErrorAlert(true);
         }
         setRefreshPortfolioList(i => i + 1)
+        setTradeSuccess(`Successfully bought ${quantity} share(s) of ${ticker}`)
+        setShowSuccessAlert(true)
     }
 
     async function handleSell(portfolio_id, ticker, quantity, sale_price) {
@@ -251,6 +302,8 @@ const DashboardContainer = () => {
             setShowErrorAlert(true);
         }
         setRefreshPortfolioList(i => i + 1)
+        setTradeSuccess(`Successfully shared ${quantity} share(s) of ${ticker} at a price of $${sale_price}`)
+        setShowSuccessAlert(true)
     }
 
 
@@ -263,7 +316,7 @@ const DashboardContainer = () => {
 
 
     async function handlePortfolioSecurity(portfolio_id){
-const token = getAccessToken()
+    const token = getAccessToken()
     if (!token) {
         setIsLoading(false)
         return
@@ -296,78 +349,79 @@ const token = getAccessToken()
     })
     .finally(() => setIsLoading(false))
 
+
     }
 
 
-    const buy = (portfolio_id, ticker, quantity) => {
-        // check if the portfolio exists
-        const portfolio = portfolios.filter(portfolio => portfolio.id === portfolio_id)
-        if (portfolio.length != 1) {
-            setTradeError('Portfolio with ID ' + portfolio_id + ' does not exist')
-            return
-        }
-        // filter the holdings so only the holdings related to the portfolio are listed
-        const portfolio_holdings = holdings.filter(holding => holding.portfolioId === portfolio_id)
+    // const buy = (portfolio_id, ticker, quantity) => {
+    //     // check if the portfolio exists
+    //     const portfolio = portfolios.filter(portfolio => portfolio.id === portfolio_id)
+    //     if (portfolio.length != 1) {
+    //         setTradeError('Portfolio with ID ' + portfolio_id + ' does not exist')
+    //         return
+    //     }
+    //     // filter the holdings so only the holdings related to the portfolio are listed
+    //     const portfolio_holdings = holdings.filter(holding => holding.portfolioId === portfolio_id)
         
-        let investmentExists = false
-        // loop through holdings
-        for (let i = 0; i < portfolio_holdings.length; i++) {
-            const holding = portfolio_holdings[i]
-        // check whether the holdings already contain the stock the user wants to buy
-            if (holding.ticker === ticker.toUpperCase()) {
-                investmentExists = true
-                setHoldings(holdings.map(h => h.id === holding.id ? {...h, quantity: h.quantity + Number(quantity)} : h))
-            }
-        // if the holdings do not contain the stock the user wants, create a new line and add the investment
-            if (!investmentExists) {
-                setHoldings([...holdings, {
-                    id: Date.now(), portfolioId: portfolio_id, ticker, quantity: Number(quantity)
-                }])
-            }
-            setTradeSuccess(`Successfully completed a buy order of ${quantity} shares of ${ticker}`)
-        }
-    }
+    //     let investmentExists = false
+    //     // loop through holdings
+    //     for (let i = 0; i < portfolio_holdings.length; i++) {
+    //         const holding = portfolio_holdings[i]
+    //     // check whether the holdings already contain the stock the user wants to buy
+    //         if (holding.ticker === ticker.toUpperCase()) {
+    //             investmentExists = true
+    //             setHoldings(holdings.map(h => h.id === holding.id ? {...h, quantity: h.quantity + Number(quantity)} : h))
+    //         }
+    //     // if the holdings do not contain the stock the user wants, create a new line and add the investment
+    //         if (!investmentExists) {
+    //             setHoldings([...holdings, {
+    //                 id: Date.now(), portfolioId: portfolio_id, ticker, quantity: Number(quantity)
+    //             }])
+    //         }
+    //         setTradeSuccess(`Successfully completed a buy order of ${quantity} shares of ${ticker}`)
+    //     }
+    // }
 
-        const sell = (portfolio_id, ticker, quantity) => {
-        // check if the portfolio exists
-        const portfolio = portfolios.filter(portfolio => portfolio.id === portfolio_id)
-        if (portfolio.length != 1) {
-            setTradeError('Portfolio with ID ' + portfolio_id + ' does not exist')
-            return
-        }
-        // filter the holdings so only the holdings related to the portfolio are listed
-        const portfolio_holdings = holdings.filter(holding => holding.portfolioId === portfolio_id)
+    //     const sell = (portfolio_id, ticker, quantity) => {
+    //     // check if the portfolio exists
+    //     const portfolio = portfolios.filter(portfolio => portfolio.id === portfolio_id)
+    //     if (portfolio.length != 1) {
+    //         setTradeError('Portfolio with ID ' + portfolio_id + ' does not exist')
+    //         return
+    //     }
+    //     // filter the holdings so only the holdings related to the portfolio are listed
+    //     const portfolio_holdings = holdings.filter(holding => holding.portfolioId === portfolio_id)
         
-        let investmentExists = false
-        // loop through holdings
-        for (let i = 0; i < portfolio_holdings.length; i++) {
-            const holding = portfolio_holdings[i]
-        // check whether the holdings already contain the stock the user wants to sell
-            if (holding.ticker === ticker.toUpperCase()) {
-                investmentExists = true
-                if (holding.quantity >= quantity){
+    //     let investmentExists = false
+    //     // loop through holdings
+    //     for (let i = 0; i < portfolio_holdings.length; i++) {
+    //         const holding = portfolio_holdings[i]
+    //     // check whether the holdings already contain the stock the user wants to sell
+    //         if (holding.ticker === ticker.toUpperCase()) {
+    //             investmentExists = true
+    //             if (holding.quantity >= quantity){
 
-                    setHoldings(holdings.map(h => h.id === holding.id ? {...h, quantity: h.quantity - Number(quantity)} : h))
-                    setTradeSuccess(`Successfully completed a sell order of ${quantity} shares of ${ticker}`)
-                }
-                else {
-                    // error message
-                    setTradeError('You do not have enough shres to sell this stock')
-                }
-            }
-        // if the holdings do not contain the stock, send different message
-            if (!investmentExists) {
-                setTradeError(`You do not own any shares of ${ticker}`)
-                // insert error here
-            }
+    //                 setHoldings(holdings.map(h => h.id === holding.id ? {...h, quantity: h.quantity - Number(quantity)} : h))
+    //                 setTradeSuccess(`Successfully completed a sell order of ${quantity} shares of ${ticker}`)
+    //             }
+    //             else {
+    //                 // error message
+    //                 setTradeError('You do not have enough shres to sell this stock')
+    //             }
+    //         }
+    //     // if the holdings do not contain the stock, send different message
+    //         if (!investmentExists) {
+    //             setTradeError(`You do not own any shares of ${ticker}`)
+    //             // insert error here
+    //         }
 
-        }
-    }
+    //     }
+    // }
     
     // const selectedPortfolio = portfolios.find(p => p.id === selectedPortfolioId) || null
-    const selectedHoldings = holdings.filter(
-        h => h.PortfolioId === selectedPortfolioId
-    )
+    // const selectedHoldings = holdings.filter(
+    //     h => h.PortfolioId === selectedPortfolioId
+    // )
 
 
     return (
@@ -392,6 +446,30 @@ const token = getAccessToken()
                         <Alert variant = "danger" onClose={() => setShowErrorAlert(false)} dismissible>
                             <Alert.Heading>Error</Alert.Heading>
                             <p>{errorMessage}</p>
+                        </Alert>
+                    )
+                }
+                {
+                    showSuccessAlert && (
+                        <Alert variant = "success" onClose={() => setShowSuccessAlert(false)} dismissible>
+                            <Alert.Heading>Success</Alert.Heading>
+                            <p>{tradeSuccess}</p>
+                        </Alert>
+                    )
+                }
+                {
+                    showPortfolioErrorAlert && (
+                        <Alert variant = "danger" onClose={() => setShowPortfolioErrorAlert(false)} dismissible>
+                            <Alert.Heading>Error</Alert.Heading>
+                            <p>{portfolioErrorAlert}</p>
+                        </Alert>
+                    )
+                }
+                {
+                    showPortfolioSuccessAlert && (
+                        <Alert variant = "success" onClose={() => setShowPortfolioSuccessAlert(false)} dismissible>
+                            <Alert.Heading>Success</Alert.Heading>
+                            <p>{portfolioSuccessAlert}</p>
                         </Alert>
                     )
                 }
@@ -431,20 +509,18 @@ const token = getAccessToken()
                             portfolio = {selectedPortfolio}
                             holdings = {holdings.filter(holding => holding.portfolio_id === selectedPortfolio?.id)}
                             onBuy = {handleBuy}
-                            error = {tradeError}
-                            success = {tradeSuccess}
+                            // error = {tradeError}
+                            // success = {tradeSuccess}
                             onSell = {handleSell}
 
                         />
                     </Tab>
-                    {/* <Tab eventKey = 'transactions' title = 'Transactions'>
+                    <Tab eventKey = 'transactions' title = 'Transactions'>
                         <Transactions
-                            
                             portfolio = {selectedPortfolio}   
                             portfolioSecurity = {transactions}
-                            loadTransactions = {handlePortfolioSecurity}
                         />
-                    </Tab> */}
+                    </Tab>
                 </Tabs>
                 </Container>
         )
