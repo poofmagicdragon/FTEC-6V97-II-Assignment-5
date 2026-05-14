@@ -6,6 +6,7 @@ import CreatePortfolioModal from './CreatePortfolioModal'
 import Holdings from './Holdings'
 import TradePanel from './TradePanel'
 import DeletePortfolioModal from './DeletePortfolioModal'
+// import Transactions from './Transactions'
 
 const DashboardContainer = () => {
     const [isLoading, setIsLoading] = useState(true)
@@ -20,13 +21,14 @@ const DashboardContainer = () => {
     const [showCreatePortfolioModal, setShowNewPortfolioModal] = useState(false)
     const [showDeletePortfolioModal, setShowDeletePortfolioModal] = useState(false)
     
-    const [selectedPortfolio, setSelectedPortfolio] = useState(-1)
+    const [selectedPortfolio, setSelectedPortfolio] = useState(null)
     const [selectedPortfolioId, setSelectedPortfolioId] = useState(null)
 
     const [tradeError, setTradeError] = useState('')
     const [tradeSuccess, setTradeSuccess] = useState('')
     const [holdings, setHoldings] = useState([])
 
+    const [transactions, setTransactions] = useState([]);
 
 
 
@@ -107,6 +109,39 @@ const DashboardContainer = () => {
 }, [refreshPortfolioList])
 
 
+    // for fetching the holdings
+
+    useEffect(() => {
+    if (!selectedPortfolio) return;
+    const token = getAccessToken();
+    if (!token) return;
+
+    fetch(`/api/portfolios/${selectedPortfolio.id}/holdings`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                setErrorMessage(err.error_message || "Failed to fetch holdings");
+                setShowErrorAlert(true);
+            });
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data) setHoldings(data);
+    })
+    .catch(err => {
+        setErrorMessage(err.message);
+        setShowErrorAlert(true);
+    });
+}, [selectedPortfolio, refreshPortfolioList]);   
+
+
     // for fetching the portfolios:
     
 
@@ -178,9 +213,46 @@ const DashboardContainer = () => {
             throw new Error(error.error_message)
         }
         // if no error then we want to reload the list of portfolios so that the new portfolio shows
-        setRefreshPortfolioList(i => i+1)
+        setRefreshPortfolioList(i => i + 1)
         setShowNewPortfolioModal(false)
     }
+
+    async function handleBuy(portfolio_id, ticker, quantity) {
+        const token = getAccessToken()
+        const res = await fetch('/api/trades/buy',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ portfolio_id, ticker, quantity })
+        })
+        if (!res.ok) {
+            const data = await res.json()
+            setErrorMessage(data.error_message)
+            setShowErrorAlert(true);
+        }
+        setRefreshPortfolioList(i => i + 1)
+    }
+
+    async function handleSell(portfolio_id, ticker, quantity, sale_price) {
+        const token = getAccessToken()
+        const res = await fetch('/api/trades/sell',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ portfolio_id, ticker, quantity, sale_price })
+        })
+        if (!res.ok) {
+            const data = await res.json()
+            setErrorMessage(data.error_message)
+            setShowErrorAlert(true);
+        }
+        setRefreshPortfolioList(i => i + 1)
+    }
+
 
 
     const handleSelectPortfolio = (portfolio_id) => {
@@ -190,6 +262,41 @@ const DashboardContainer = () => {
     }
 
 
+    async function handlePortfolioSecurity(portfolio_id){
+const token = getAccessToken()
+    if (!token) {
+        setIsLoading(false)
+        return
+    }
+
+    setIsLoading(true)
+
+    fetch(`/api/portfolios/${portfolio_id}/transactions`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => {
+        if (!res.ok) {
+            return res.json().then(err => {
+                setErrorMessage(err.error_message)
+                setShowErrorAlert(true)
+            })
+        }
+        return res.json()
+    })
+    .then(data => {
+        if (data) setTransactions(data)
+    })
+    .catch(err => {
+        setErrorMessage(err.message)
+        setShowErrorAlert(true)
+    })
+    .finally(() => setIsLoading(false))
+
+    }
 
 
     const buy = (portfolio_id, ticker, quantity) => {
@@ -316,21 +423,28 @@ const DashboardContainer = () => {
                     <Tab eventKey = 'holdings' title = 'Holdings'>
                         <Holdings 
                             portfolio = {selectedPortfolio}
-                            holdings = {holdings.filter(holding => holding.portfolioId === selectedPortfolio?.id)}
+                            holdings = {holdings.filter(holding => holding.portfolio_id === selectedPortfolio?.id)}
                         />
                     </Tab>
                     <Tab eventKey = 'trade' title = 'Trade'>
                         <TradePanel
                             portfolio = {selectedPortfolio}
-                            holdings = {holdings.filter(holding => holding.portfolioId === selectedPortfolio?.id)}
-                            onBuy = {buy}
+                            holdings = {holdings.filter(holding => holding.portfolio_id === selectedPortfolio?.id)}
+                            onBuy = {handleBuy}
                             error = {tradeError}
                             success = {tradeSuccess}
-                            onSell = {sell}
+                            onSell = {handleSell}
 
                         />
                     </Tab>
-                    <Tab eventKey = 'transactions' title = 'Transactions'><p>Transaction Placeholder</p></Tab>
+                    {/* <Tab eventKey = 'transactions' title = 'Transactions'>
+                        <Transactions
+                            
+                            portfolio = {selectedPortfolio}   
+                            portfolioSecurity = {transactions}
+                            loadTransactions = {handlePortfolioSecurity}
+                        />
+                    </Tab> */}
                 </Tabs>
                 </Container>
         )
@@ -345,3 +459,11 @@ const DashboardContainer = () => {
 
 
 export default DashboardContainer
+
+
+
+
+
+
+
+

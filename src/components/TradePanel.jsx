@@ -4,6 +4,7 @@ import { Alert, Card, Row, Col, Form, Button } from 'react-bootstrap'
 const TradePanel = ({portfolio, holdings, onBuy, onSell, error, success}) => {
     const [ticker, setTicker] = useState('')
     const [quantity, setQuantity] = useState(0)
+    const [sellPrice, setSellPrice] = useState(0)
 
     if (!portfolio) {
         return <p>Select a portfolio</p>
@@ -39,13 +40,23 @@ const TradePanel = ({portfolio, holdings, onBuy, onSell, error, success}) => {
                             onChange = {e => setQuantity(e.target.value)}
                             />                        
                         </Col>
+                        <Col>
+                            <Form.Label>Sell Price</Form.Label>
+                            <Form.Control
+                            type = "number"
+                            min = "1"
+                            placeholder = "e.g. 50"
+                            value = {sellPrice}
+                            onChange = {e => setSellPrice(e.target.value)}
+                            />                        
+                        </Col>
                     </Row>
 
                     <div className = "d-flex gap-2">
                         <Button variant="success" onClick = {() => onBuy(portfolio.id, ticker, quantity)}>
                             Buy
                         </Button>
-                        <Button variant="danger" onClick = {() => onSell(portfolio.id, ticker, quantity)}>
+                        <Button variant="danger" onClick = {() => onSell(portfolio.id, ticker, quantity, sellPrice)}>
                             Sell
                         </Button>
                     </div>
