@@ -234,6 +234,7 @@ async function handlePortfolioSecurity(portfolio_id) {
         const data = await res.json();
         setShowPortfolioErrorAlert(true)
         setPortfolioErrorAlert(`Could not delete portfolio due to: ${data.error_message}`)
+        setShowDeletePortfolioModal(false)
         return;
         }
         setShowPortfolioSuccessAlert(true)
