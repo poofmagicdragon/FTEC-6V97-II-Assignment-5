@@ -1,0 +1,238 @@
+*, *::before, *::after {
+  box-sizing: border-box;   /* width includes padding and border, prevents sizing surprises */
+}
+
+body {
+  margin: 0;                                         /* removes the browser's default 8px body margin */
+  background-color: #f8f9fa;                         /* light grey page background */
+  font-family: system-ui, -apple-system, sans-serif; /* uses the device's native system font */
+}
+
+.card {
+    width: 320px;
+    margin: 2rem auto;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07),
+                0 10px 30px -5px rgba(0,0,0,0.1);
+}
+
+.card-body {
+    padding: 1.25rem 1.5rem;
+}
+
+.card-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.card-description {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.card-footer {
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-view {
+    background-color: #22c55e;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-view:hover {
+  background-color: #16a34a;   /* darker green on hover — shows the button responded to the mouse */
+}
+
+.lp-root {
+  display: flex;
+  justify-content: space-between; /* first item at left edge, last at right edge, rest evenly spaced */
+  min-height: 100vh;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;   /* stack items vertically */
+  gap: 0.75rem;             /* 12px of space between each list item — no margin needed on individual items */
+}
+
+.item {
+  padding: 0.75rem 1.5rem
+}
+
+.lp-hero {
+    flex: 1 1 55%;
+    background: linear-gradient(135deg, #0b1120 0%, #0d2818 60%, #0a1f30 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 4rem;
+}
+
+.lp-hero-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.lp-hero-logo-icon {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4ade80;
+}
+
+.lp-hero-headline {
+    color: #f1f5f9;
+    font-size: 2.5rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem
+}
+
+.lp-hero-subline {
+    font-size: 1rem;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+}
+
+.lp-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.lp-features li{
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    display:flex;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.lp-check {
+    color: #4ade88;
+    font-weight: 700;
+
+}
+
+.lp-login {
+    flex: 0 0 45%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(315deg, #6e7009,#463900);
+    padding: 3rem 2rem;
+
+}
+
+.login-card {
+    width: 100%;
+    max-width: 350px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07),
+        0 20px 60px -10px rgba(0,0,0,0.12);
+    text-align: center;    
+}
+
+.login-card-logo {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+
+}
+
+.login-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 0.4rem;
+}
+
+.login-card-sub {
+    font-size: 0.9rem;
+    margin-bottom: 1.75rem;
+    color: #64748b;
+}
+
+.login-card-btn {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background-color: #22c55e;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+
+.login-card-btn:hover {
+    background-color: #16a34a;
+}
+
+.login-card-btn:hover {
+    cursor: pointer;
+}
+
+
+.Form {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 0.5rem;
+    padding-bottom: 1rem;
+
+}
+
+.Form .form-label {
+    padding: 0.75rem ;
+}
+
+.Form .form-control {
+    color: #64748b;
+}
+
+.Form #FormBox-Username {
+    border: 1px solid #000000;
+    border-radius: 6px
+}
+
+
+.Form #FormBox-Username:focus {
+  border: 2px solid #16a34a;
+  outline: none;
+  box-shadow: none;
+}
+
+
+.Form #FormBox-Password {
+    border: 1px solid #000000;
+    border-radius: 6px
+}
+
+
+.Form #FormBox-Password:focus {
+  border: 2px solid #16a34a;
+  outline: none;
+  box-shadow: none;
+}
+
+
+
