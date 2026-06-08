@@ -281,6 +281,7 @@ async function handlePortfolioSecurity(portfolio_id) {
             const data = await res.json()
             setErrorMessage(data.error_message)
             setShowErrorAlert(true);
+            return
         }
         setRefreshPortfolioList(i => i + 1)
         setTradeSuccess(`Successfully bought ${quantity} share(s) of ${ticker}`)
@@ -301,6 +302,7 @@ async function handlePortfolioSecurity(portfolio_id) {
             const data = await res.json()
             setErrorMessage(data.error_message)
             setShowErrorAlert(true);
+            return
         }
         setRefreshPortfolioList(i => i + 1)
         setTradeSuccess(`Successfully shared ${quantity} share(s) of ${ticker} at a price of $${sale_price}`)
@@ -316,42 +318,42 @@ async function handlePortfolioSecurity(portfolio_id) {
     }
 
 
-    async function handlePortfolioSecurity(portfolio_id){
-    const token = getAccessToken()
-    if (!token) {
-        setIsLoading(false)
-        return
-    }
+    // async function handlePortfolioSecurity(portfolio_id){
+    // const token = getAccessToken()
+    // if (!token) {
+    //     setIsLoading(false)
+    //     return
+    // }
 
-    setIsLoading(true)
+    // setIsLoading(true)
 
-    fetch(`/api/portfolios/${portfolio_id}/transactions`, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(res => {
-        if (!res.ok) {
-            return res.json().then(err => {
-                setErrorMessage(err.error_message)
-                setShowErrorAlert(true)
-            })
-        }
-        return res.json()
-    })
-    .then(data => {
-        if (data) setTransactions(data)
-    })
-    .catch(err => {
-        setErrorMessage(err.message)
-        setShowErrorAlert(true)
-    })
-    .finally(() => setIsLoading(false))
+    // fetch(`/api/portfolios/${portfolio_id}/transactions`, {
+    //     method: 'GET',
+    //     headers: {
+    //         Authorization: `Bearer ${token}`,
+    //         'Content-Type': 'application/json'
+    //     }
+    // })
+    // .then(res => {
+    //     if (!res.ok) {
+    //         return res.json().then(err => {
+    //             setErrorMessage(err.error_message)
+    //             setShowErrorAlert(true)
+    //         })
+    //     }
+    //     return res.json()
+    // })
+    // .then(data => {
+    //     if (data) setTransactions(data)
+    // })
+    // .catch(err => {
+    //     setErrorMessage(err.message)
+    //     setShowErrorAlert(true)
+    // })
+    // .finally(() => setIsLoading(false))
 
 
-    }
+    // }
 
 
     // const buy = (portfolio_id, ticker, quantity) => {

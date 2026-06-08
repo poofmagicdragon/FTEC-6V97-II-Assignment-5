@@ -11,9 +11,7 @@ const Transactions = ({portfolio, portfolioSecurity}) => {
             </div>
         )
     }
-    console.log(
-        `Transactions: ${JSON.stringify(portfolioSecurity)} Portfolio Name: ${portfolio?.name}`
-    )
+
 
     return (
         <div style={{ margin: '25px' }}>

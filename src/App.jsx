@@ -4,7 +4,8 @@ import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import './App.css';
 import LoginPage from './components/LoginPage';
 import DashboardContainer from './components/DashboardContainer';
-import { exchangeCodeForToken, getAccessToken } from './cognito';
+import { exchangeCodeForToken, getAccessToken, clearSession } from './cognito';
+
 
 
 function App() {
@@ -76,7 +77,11 @@ function App() {
           <Navbar.Toggle aria-controls = "main-nav" />
           <Navbar.Collapse id = "main-nav">
             <Nav className = "ms-auto">
-              <Button variant = "outline-light" size = "sm" onClick = {() => setIsLoggedIn(false)}>
+              <Button variant = "outline-light" size = "sm" 
+              onClick = {() => {
+              setIsLoggedIn(false)
+              clearSession()
+              }}>
                 Logout
               </Button>
             </Nav>

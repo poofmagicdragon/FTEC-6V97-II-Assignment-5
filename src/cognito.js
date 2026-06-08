@@ -4,7 +4,7 @@ const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
 const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI
 
 const CODE_VERIFIER_KEY = 'code_verifier'
-const TOKEN_KEY = 'token_'
+export const TOKEN_KEY = 'token_'
 
 const generateCodeVerifier = () => {
     const array = new Uint8Array(32);
@@ -89,7 +89,9 @@ export const getAccessToken = () => {
 }
 
 
-// export function clearSession() {
-//     sessionStorage.removeItem(TOKEN_KEY)
-//     sessionStorage.removeItem(CODE_VERIFIER_KEY)
-// }
+
+
+export function clearSession() {
+    sessionStorage.removeItem(TOKEN_KEY)
+    sessionStorage.removeItem(CODE_VERIFIER_KEY)
+}

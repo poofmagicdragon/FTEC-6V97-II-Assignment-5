@@ -15,7 +15,7 @@ const CreatPortfolioModal = ({showModal, onModalClose, onCreate, portfolios}) =>
             return
         }
 
-        const duplicate = PortfolioList.some(
+        const duplicate = portfolios.some(
             p => p.name.toLowerCase() === trimmedName.toLowerCase()
         )
         if (duplicate) {
@@ -80,7 +80,7 @@ const CreatPortfolioModal = ({showModal, onModalClose, onCreate, portfolios}) =>
         </Modal.Body>
         <Modal.Footer>
             <Button variant = "secondary" onClick = {() => handleModalClose()}>Cancel</Button>
-            <Button variant = "success" onClick = {handleCreate}>Create</Button>
+            <Button variant = "success" onClick = {handleSubmit}>Create</Button>
         </Modal.Footer>
     </Modal>
     </>
